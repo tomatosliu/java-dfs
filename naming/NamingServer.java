@@ -33,6 +33,15 @@ import storage.*;
  */
 public class NamingServer implements Service, Registration
 {
+    /* Class member variables for mapping paths to components */
+    DirectoryTree dirTree = null;
+
+    /* Skeleton for Service Interface */
+    Skeleton<Service> serviceSkeleton = null;
+
+    /* Skeleton for Registration Interface*/
+    Skeleton<Registration> registSkeleton = null;
+
     /** Creates the naming server object.
 
         <p>
@@ -40,7 +49,11 @@ public class NamingServer implements Service, Registration
      */
     public NamingServer()
     {
-        throw new UnsupportedOperationException("not implemented");
+        this.dirTree= new DirectoryTree();
+        this.serviceSkeleton = new Skeleton<Service>(Service.class, this,
+                                            new InetSocketAddress(NamingStubs.SERVICE_PORT));
+        this.registSkeleton = new Skeleton<Registration>(Registration.class, this,
+                                            new InetSocketAddress(NamingStubs.REGISTRATION_PORT));
     }
 
     /** Starts the naming server.
@@ -56,7 +69,13 @@ public class NamingServer implements Service, Registration
      */
     public synchronized void start() throws RMIException
     {
-        throw new UnsupportedOperationException("not implemented");
+        try {
+            this.serviceSkeleton.start();
+            this.registSkeleton.start();
+        }
+        catch(RMIException e) {
+            throw e;
+        }
     }
 
     /** Stops the naming server.
@@ -70,7 +89,8 @@ public class NamingServer implements Service, Registration
      */
     public void stop()
     {
-        throw new UnsupportedOperationException("not implemented");
+        this.serviceSkeleton.stop();
+        this.registSkeleton.stop();
     }
 
     /** Indicates that the server has completely shut down.
@@ -102,26 +122,54 @@ public class NamingServer implements Service, Registration
     @Override
     public boolean isDirectory(Path path) throws FileNotFoundException
     {
-        throw new UnsupportedOperationException("not implemented");
+        DirectoryNode node = this.dirTree.getNode(path);
+        if(node == null) {
+            throw new FileNotFoundException();
+        }
+
+        return node.isDirectory();
     }
 
     @Override
     public String[] list(Path directory) throws FileNotFoundException
     {
-        throw new UnsupportedOperationException("not implemented");
+        DirectoryNode node = this.dirTree.getNode(directory);
+        if(node == null) {
+            throw new FileNotFoundException();
+        }
+
+        List<String> res = new ArrayList<String>();
+        for(DirectoryNode n: node.getSons().values()) {
+            res.add(n.getPath());
+        }
+        return res.toArray();
     }
 
     @Override
     public boolean createFile(Path file)
         throws RMIException, FileNotFoundException
     {
-        throw new UnsupportedOperationException("not implemented");
+        // 1. Create node in the directory tree
+        this.dirTree.createNode(file, false);
+
+        // 2. Find a storage server
+        PathComponents pathComp = scheduler.getFileSource(file);
+
+        // 3. Insert the components into the tree
+        this.dirTree.insertPathComp(p, pathComp)
     }
 
     @Override
     public boolean createDirectory(Path directory) throws FileNotFoundException
     {
-        throw new UnsupportedOperationException("not implemented");
+        // 1. Create node in the directory tree
+        this.dirTree.createNode(file, true);
+
+        // 2. Find a storage server
+        PathComponents pathComp = scheduler.getFileSource(directory);
+
+        // 3. Insert the components into the tree
+        this.dirTree.insertPathComp(p, pathComp)
     }
 
     @Override
@@ -143,4 +191,5 @@ public class NamingServer implements Service, Registration
     {
         throw new UnsupportedOperationException("not implemented");
     }
+
 }
