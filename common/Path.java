@@ -131,7 +131,7 @@ public class Path implements Iterable<String>, Comparable<Path>, Serializable
      */
     public boolean isRoot()
     {
-        return this.components.isEmpt
+        return this.components.isEmpty();
     }
 
     /** Returns the path to the parent of this path.

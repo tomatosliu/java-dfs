@@ -8,6 +8,8 @@ import rmi.*;
 import common.*;
 import storage.*;
 
+import naming.DirectoryTree.DirectoryNode;
+
 /** Naming server.
 
     <p>
@@ -42,6 +44,7 @@ public class NamingServer implements Service, Registration
     /* Skeleton for Registration Interface*/
     Skeleton<Registration> registSkeleton = null;
 
+    Scheduler scheduler = null;
     /** Creates the naming server object.
 
         <p>
@@ -54,6 +57,7 @@ public class NamingServer implements Service, Registration
                                             new InetSocketAddress(NamingStubs.SERVICE_PORT));
         this.registSkeleton = new Skeleton<Registration>(Registration.class, this,
                                             new InetSocketAddress(NamingStubs.REGISTRATION_PORT));
+        this.scheduler = new Scheduler();
     }
 
     /** Starts the naming server.
@@ -142,7 +146,7 @@ public class NamingServer implements Service, Registration
         for(DirectoryNode n: node.getSons().values()) {
             res.add(n.getPath());
         }
-        return res.toArray();
+        return (String[])res.toArray();
     }
 
     @Override
@@ -166,7 +170,7 @@ public class NamingServer implements Service, Registration
         }
 
         // 3. Insert the components into the tree
-        this.dirTree.insertPathComp(file, pathComp)
+        this.dirTree.insertPathComp(file, pathComp);
 
         // 4. Create directory on Storage Server
         //    This may throw a RMIException.

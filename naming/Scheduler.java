@@ -1,6 +1,10 @@
 package naming;
 
 import java.util.*;
+import java.io.*;
+
+import common.*;
+import storage.*;
 
 /** Scheduler.
 
@@ -13,7 +17,7 @@ public class Scheduler {
     Random rand = new Random();
 
     /** Get a Storage server to create file or send to client
-    
+
         If the Path file already in map, it means there is a server that contains the file, so the
         action fails, returns null.
         If no storage server connecting to the naming server, then throw IllegalStateException.
@@ -54,19 +58,6 @@ public class Scheduler {
             this.storage = storage;
             this.command = command;
             this.numUsed = 0;
-        }
-    }
-
-    /** Comparator for priority queue.
-      */
-    public class ServerComparator extends Comparator<StorageServerStubs> {
-        public int compare(StorageServerStubs stub1, StorageServerStubs stub2) {
-            if(stub1.numUsed < stub2.numUsed) {
-                return -1;
-            }
-            else {
-                return 1;
-            }
         }
     }
 }

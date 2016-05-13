@@ -1,6 +1,10 @@
 package naming;
 
 import java.util.*;
+import java.io.*;
+
+import common.*;
+import storage.*;
 
 public class DirectoryTree {
     DirectoryNode root;
@@ -11,9 +15,9 @@ public class DirectoryTree {
     public DirectoryNode getNode(Path p) {
         DirectoryNode curNode = this.root;
         while(true) {
-            Path curPath = curNode.root;
-            if(curNode.root.equals(p)) {
-                return curNode.root;
+            Path curPath = curNode.path;
+            if(curPath.equals(p)) {
+                return curNode;
             }
             else {
                 if(p.isSubpath(curPath)) {
@@ -64,7 +68,7 @@ public class DirectoryTree {
             throws FileNotFoundException {
         createNode(file, false);
         // TODO
-        DirectoryNode node = getNode(p);
+        DirectoryNode node = getNode(file);
         if(node == null) {
             throw new FileNotFoundException();
         }
@@ -89,7 +93,7 @@ public class DirectoryTree {
             throw new FileNotFoundException();
         }
 
-        dirNode.sons.remove(p)
+        dirNode.sons.remove(p);
         return true;
     }
 
@@ -98,13 +102,13 @@ public class DirectoryTree {
         <p>
       */
     public class DirectoryNode {
-        Path root;
+        Path path;
         HashMap<Path, DirectoryNode> sons;
         boolean isDirectory;
-        ArrayList<PathComponents> pathComps; // TODO: Need a mapping
+        PathComponents pathComps; // TODO: Need a mapping
 
         public DirectoryNode(Path p, boolean isDirectory) {
-            this.root = p;
+            this.path = p;
             this.isDirectory = isDirectory;
             if(this.isDirectory) {
                 this.sons = new HashMap<Path, DirectoryNode>();
@@ -120,7 +124,7 @@ public class DirectoryTree {
         }
 
         public String getPath() {
-            return root.toString();
+            return path.toString();
         }
 
         public boolean insertNode(Path p, boolean isDirectory) {
@@ -139,44 +143,5 @@ public class DirectoryTree {
         }
     }
 
-    /** Helper class for NamingServer.
 
-        <p>
-        There are three components for a mapping from path:
-        Storage
-        Command
-        Path[]
-      */
-    public class PathComponents {
-        ArrayList<Storage> storageStubs = null;
-        ArrayList<Command> commandStubs = null;
-
-        public PathComponents() {
-            this.storageStubs = new ArrayList<Storage>();
-            this.commandStubs = new ArrayList<Command>();
-        }
-
-        public ArrayList<Storage> getStorageStub() {
-            return this.storageStubs;
-        }
-
-        public ArrayList<Command> getCommandStub() {
-            return this.commandStubs;
-        }
-
-        public void addStorageStub(Storage storage) {
-            this.storageStubs.add(storage);
-        }
-
-        public void addCommandStub(Command command) {
-            this.commandStubs.add(command);
-        }
-        public void addStorageStub(ArrayList<Storage> storage) {
-            this.storageStubs.addAll(storage);
-        }
-
-        public void addCommandStub(ArrayList<Command> command) {
-            this.commandStubs.addAll(command);
-        }
-    }
 }
