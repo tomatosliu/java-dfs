@@ -18,7 +18,8 @@ public class StorageServer implements Storage, Command
 {
 
     private File root;
-
+    private Skeleton<Storage> storageSkeleton;
+    private Skeleton<Command> commandSkeleton;
 
     /** Creates a storage server, given a directory on the local filesystem, and
         ports to use for the client and command interfaces.
@@ -37,7 +38,11 @@ public class StorageServer implements Storage, Command
     */
     public StorageServer(File root, int client_port, int command_port)
     {
-        throw new UnsupportedOperationException("not implemented");
+        if(root == null)
+            throw new NullPointerException();
+        this.root = root;
+        this.storageSkeleton = new Skeleton<Storage>(Storage.class, this, new InetSocketAddress(client_port));
+        this.commandSkeleton = new Skeleton<Command>(Command.class, this, new InetSocketAddress(command_port));
     }
 
     /** Creats a storage server, given a directory on the local filesystem.
@@ -53,7 +58,7 @@ public class StorageServer implements Storage, Command
      */
     public StorageServer(File root)
     {
-        throw new UnsupportedOperationException("not implemented");
+        this(root, 0, 0);
     }
 
     /** Starts the storage server and registers it with the given naming
