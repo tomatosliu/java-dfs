@@ -149,22 +149,166 @@ public class StorageServer implements Storage, Command
     }
 
     // The following methods are documented in Command.java.
+      /** Creates a file on the storage server.
+
+        @param file Path to the file to be created. The parent directory will be
+                    created if it does not exist. This path may not be the root
+                    directory.
+        @return <code>true</code> if the file is created; <code>false</code>
+                if it cannot be created.
+        @throws RMIException If the call cannot be completed due to a network
+                             error.
+     */
     @Override
     public synchronized boolean create(Path file)
     {
-        throw new UnsupportedOperationException("not implemented");
+        if(file == null){
+            throw new NullPointerException("file is null, failure to create");
+        }
+
+        if(file.isRoot()){
+            system.out.println("file is root, failure to create.");
+            return false;
+        }
+
+        Path parent = file.parent();
+        File pFile = parent.toFile(this.root);
+
+        if(!pFile.exists()){
+            pFile.mkdirs();
+        }
+
+        File f = file.toFile(this.root);
+
+        try{
+            return f.createNewFile();
+        } catch(Exception e){
+            throw new RMIException(e.getCause());
+        }
+
+        return false;
     }
 
+
+    /** Deletes a file or directory on the storage server.
+
+        <p>
+        If the file is a directory and cannot be deleted, some, all, or none of
+        its contents may be deleted by this operation.
+
+        @param path Path to the file or directory to be deleted. The root
+                    directory cannot be deleted.
+        @return <code>true</code> if the file or directory is deleted;
+                <code>false</code> otherwise.
+        @throws RMIException If the call cannot be completed due to a network
+                             error.
+     */
     @Override
     public synchronized boolean delete(Path path)
     {
-        throw new UnsupportedOperationException("not implemented");
+        
+        if(path == null){
+            throw new NullPointerException("path is null, failure to delete");
+        }
+
+        if(path.isRoot()){
+            return false;
+        }
+
+        File file = path.toFile(root);
+
+        return deleteHelper(file);
     }
 
+    private boolean deleteHelper(File file){
+        boolean deleteDir = true;
+        if(file.isFile()){
+            return file.delete();
+        }else if(file.isDirectory()){
+            File[] sub = file.listFiles();
+
+            for(fsub:sub){
+                if(!deleteHelper(fsub)){
+                   deleteDir = false;
+                   break; 
+                } 
+            }
+
+            return deleteDir;
+        }else{
+            return false;
+        }
+
+
+    }
+    /** Copies a file from another storage server.
+
+        @param file Path to the file to be copied.
+        @param server Storage server from which the file is to be downloaded.
+        @return <code>true</code> if the file is successfully copied;
+                <code>false</code> otherwise.
+        @throws FileNotFoundException If the file is not present on the remote
+                                      storage server, or the path refers to a
+                                      directory.
+        @throws IOException If an I/O exception occurs either on the remote or
+                            on this storage server.
+        @throws RMIException If the call cannot be completed due to a network
+                             error, whether between the caller and this storage
+                             server, or between the two storage servers.
+     */
     @Override
     public synchronized boolean copy(Path file, Storage server)
         throws RMIException, FileNotFoundException, IOException
     {
-        throw new UnsupportedOperationException("not implemented");
+        if(file == null || server == null){
+            throw new NullPointerException("failure to copy"); 
+        }
+        
+        // throws FileNotFoundException
+        long size = server.size(file);
+        
+        delete(file);
+
+        create(file);
+
+        long offset = 0;
+        long left = size;
+        boolean compare = true;
+
+        while(left > 0){
+            int written;
+            if(left > Integer.MAX_VALUE){
+                written = Integer.MAX_VALUE;
+            }else{
+                written = left;
+            }
+            
+            // return IOE/RMI exception
+            byte[] data = server.read(file, offset, written);
+            this.write(file,offset,data);
+
+            byte[] local = this.read(file,offset,written);
+            compare = compare && Arrays.equals(data,local);
+            if(!compare){
+                return false;
+            }
+
+            offset += written;
+            left -= written;
+        }
+
+        return true;
+
     }
 }
+
+
+
+
+
+
+
+
+
+
+
