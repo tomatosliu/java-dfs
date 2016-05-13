@@ -149,39 +149,65 @@ public class NamingServer implements Service, Registration
     public boolean createFile(Path file)
         throws RMIException, FileNotFoundException
     {
-        // 1. Create node in the directory tree
-        this.dirTree.createNode(file, false);
+        // 1. Find a storage server
+        //    If there is no storage server for the file, it returns null.
+        //
+        // Note: the directory tree is consistent with the files exists on the underlying filesystem
+        //       so if it throws IllegalStateException, the only situation is that there is no
+        //       storage server registered.
+        PathComponents pathComp = scheduler.pickStorageServer();
 
-        // 2. Find a storage server
-        PathComponents pathComp = scheduler.getFileSource(file);
+        // 2. Create node in the directory tree
+        //    If the parent does not exist, then throw FileNotFoundException
+        //    If it returns false, it means the file exists.
+        boolean created = this.dirTree.createNode(file, false);
+        if(!created) {
+            return false;
+        }
 
         // 3. Insert the components into the tree
-        this.dirTree.insertPathComp(p, pathComp)
+        this.dirTree.insertPathComp(file, pathComp)
+
+        // 4. Create directory on Storage Server
+        //    This may throw a RMIException.
+        pathComp.getCommandStub().get(0).create(file);
+
+        return true;
     }
 
     @Override
-    public boolean createDirectory(Path directory) throws FileNotFoundException
+    public boolean createDirectory(Path directory) throws RMIException, FileNotFoundException
     {
         // 1. Create node in the directory tree
-        this.dirTree.createNode(file, true);
-
-        // 2. Find a storage server
-        PathComponents pathComp = scheduler.getFileSource(directory);
-
-        // 3. Insert the components into the tree
-        this.dirTree.insertPathComp(p, pathComp)
+        //    If the parent does not exist, then throw FileNotFoundException
+        //    If it returns false, it means the file exists.
+        boolean created = this.dirTree.createNode(directory, true);
+        if(!created) {
+            return false;
+        }
+        else {
+            return true;
+        }
     }
 
     @Override
     public boolean delete(Path path) throws FileNotFoundException
     {
-        throw new UnsupportedOperationException("not implemented");
+        // 1. delete the node in the directory tree
+        //    If the file not found, throw FileNotFoundException.
+        //    If the path is root, then return false.
+        boolean deleted = this.dirTree.deleteNode(path);
+        if(!deleted) {
+            return false;
+        }
+
+        return true;
     }
 
     @Override
     public Storage getStorage(Path file) throws FileNotFoundException
     {
-        throw new UnsupportedOperationException("not implemented");
+
     }
 
     // The method register is documented in Registration.java.

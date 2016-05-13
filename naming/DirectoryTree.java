@@ -16,7 +16,7 @@ public class DirectoryTree {
                 return curNode.root;
             }
             else {
-                if(curPath.isSubpath(p)) {
+                if(p.isSubpath(curPath)) {
                     curNode = curNode.sons.get(p);
                 }
                 else {
@@ -34,14 +34,14 @@ public class DirectoryTree {
         @throws FileNotFoundException If the parent directory does not exist.
      */
     public boolean createNode(Path file, boolean isDirectory) throws FileNotFoundException {
+        // TODO: if the directory does not exist, the directories need to be created.
         Path pnt = file.parent();
         DirectoryNode dirNode = getNode(pnt);
         if(dirNode == null) {
             throw new FileNotFoundException();
         }
 
-        dirNode.insertNode(file, isDirectory);
-        return false
+        return dirNode.insertNode(file, isDirectory);
     }
 
     /** Insert path component into a Path.
@@ -51,7 +51,7 @@ public class DirectoryTree {
         get a storage server for operating.
         @throws FileNotFoundException If the path does not exist.
      */
-    public boolean insertPathComp(Path p, PathComponents pathComp) throws FileNotFoundException {
+    public void insertPathComp(Path p, PathComponents pathComp) throws FileNotFoundException {
         DirectoryNode node = getNode(p);
         if(node == null) {
             throw new FileNotFoundException();
@@ -60,10 +60,42 @@ public class DirectoryTree {
         node.insertPathComp(pathComp);
     }
 
+    public boolean insertPathStubs(Path file, Storage storage, Command command)
+            throws FileNotFoundException {
+        createNode(file, false);
+        // TODO
+        DirectoryNode node = getNode(p);
+        if(node == null) {
+            throw new FileNotFoundException();
+        }
+        node.pathComps.addStorageStub(storage);
+        node.pathComps.addCommandStub(command);
+    }
+
+    /** Delete the node of Path p.
+
+        <p>
+        If the Path is not reachable, throw FileNotFoundException.
+        If the Path is root, return false.
+      */
+    public boolean deleteNode(Path p) throws FileNotFoundException {
+        if(p.isRoot()) {
+            return false;
+        }
+
+        Path pnt = p.parent();
+        DirectoryNode dirNode = getNode(pnt);
+        if(dirNode == null) {
+            throw new FileNotFoundException();
+        }
+
+        dirNode.sons.remove(p)
+        return true;
+    }
+
     /** DirectoryTree.
 
         <p>
-
       */
     public class DirectoryNode {
         Path root;
@@ -92,11 +124,18 @@ public class DirectoryTree {
         }
 
         public boolean insertNode(Path p, boolean isDirectory) {
-            this.sons.put(p, new DirectoryNode(p, isDirectory));
+            if(this.sons.containsKey(p)) {
+                return false;
+            }
+            else {
+                this.sons.put(p, new DirectoryNode(p, isDirectory));
+                return true;
+            }
         }
 
         public void insertPathComp(PathComponents pathComp) {
-            this.pathComps.add(pathComp);
+            this.pathComps.addStorageStub(pathComp.getStorageStub());
+            this.pathComps.addCommandStub(pathComp.getCommandStub());
         }
     }
 
@@ -109,12 +148,35 @@ public class DirectoryTree {
         Path[]
       */
     public class PathComponents {
-        ArrayList<Storag> client_stubs = null;
-        ArrayList<Command> command_stubs = null;
+        ArrayList<Storage> storageStubs = null;
+        ArrayList<Command> commandStubs = null;
 
-        public PathComponents(Storage client_stub, Command command_stub) {
-            this.client_stub = client_stub;
-            this.command_stub  = command_stub;
+        public PathComponents() {
+            this.storageStubs = new ArrayList<Storage>();
+            this.commandStubs = new ArrayList<Command>();
+        }
+
+        public ArrayList<Storage> getStorageStub() {
+            return this.storageStubs;
+        }
+
+        public ArrayList<Command> getCommandStub() {
+            return this.commandStubs;
+        }
+
+        public void addStorageStub(Storage storage) {
+            this.storageStubs.add(storage);
+        }
+
+        public void addCommandStub(Command command) {
+            this.commandStubs.add(command);
+        }
+        public void addStorageStub(ArrayList<Storage> storage) {
+            this.storageStubs.addAll(storage);
+        }
+
+        public void addCommandStub(ArrayList<Command> command) {
+            this.commandStubs.addAll(command);
         }
     }
 }

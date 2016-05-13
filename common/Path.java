@@ -313,15 +313,3 @@ class IteratorAdapter implements Iterator<E>{
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
