@@ -84,7 +84,32 @@ public class StorageServer implements Storage, Command
     public synchronized void start(String hostname, Registration naming_server)
         throws RMIException, UnknownHostException, FileNotFoundException
     {
-        throw new UnsupportedOperationException("not implemented");
+        this.storageSkeleton.start();
+        this.commandSkeleton.start();
+        Storage storageStub = Stub.create(Storage.class, this.storageSkeleton, hostname);
+        Command commandStub = Stub.create(Command.class, this.commandSkeleton, hostname);
+        Path[] filesToDelete = naming_server.register(storageStub, commandStub, Path.list(this.root));
+        for(Path f : filesToDelete){
+            this.delete(f);
+        }
+        deleteEmptyDirectory(this.root);
+    }
+
+    public boolean deleteEmptyDirectory(File root){
+        if(root == null)
+            return ;
+        boolean isEmpty = true;
+        File[] files = root.listFiles();
+        for(File f : files){
+            if(!f.isDirectory()){
+                isEmpty = false;
+            }
+            else
+                isEmpty = isEmpty && deleteEmptyDirectory(f);
+        }
+        if(isEmpty)
+            root.delete();
+        return isEmpty;
     }
 
     /** Stops the storage server.
@@ -94,7 +119,9 @@ public class StorageServer implements Storage, Command
      */
     public void stop()
     {
-        throw new UnsupportedOperationException("not implemented");
+        this.storageSkeleton.stop();
+        this.commandSkeleton.stop();
+        this.stopped(null);
     }
 
     /** Called when the storage server has shut down.
