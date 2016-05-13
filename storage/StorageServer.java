@@ -16,6 +16,10 @@ import naming.*;
  */
 public class StorageServer implements Storage, Command
 {
+
+    private File root;
+
+
     /** Creates a storage server, given a directory on the local filesystem, and
         ports to use for the client and command interfaces.
 
@@ -101,21 +105,42 @@ public class StorageServer implements Storage, Command
     @Override
     public synchronized long size(Path file) throws FileNotFoundException
     {
-        throw new UnsupportedOperationException("not implemented");
+        File f = file.toFile(this.root);
+        if(!f.exists() || f.isDirectory())
+            throw new FileNotFoundException();
+        return f.length();
     }
 
     @Override
     public synchronized byte[] read(Path file, long offset, int length)
         throws FileNotFoundException, IOException
     {
-        throw new UnsupportedOperationException("not implemented");
+        File f = file.toFile(this.root);
+        if(!f.exists() || f.isDirectory())
+            throw new FileNotFoundException();
+        if((offset + length > f.length()) || (length < 0))
+            throw new IndexOutOfBoundsException();
+        RandomAccessFile raf = new RandomAccessFile(f, "r");
+        byte[] bytesRead = new byte[length];
+        raf.seek(offset);
+        raf.read(bytesRead, 0, length);
+        raf.close();
+        return bytesRead;
     }
 
     @Override
     public synchronized void write(Path file, long offset, byte[] data)
         throws FileNotFoundException, IOException
     {
-        throw new UnsupportedOperationException("not implemented");
+        File f = file.toFile(this.root);
+        if(!f.exists() || f.isDirectory())
+            throw new FileNotFoundException();
+        if(offset < 0)
+            throw new IndexOutOfBoundsException();
+        RandomAccessFile raf = new RandomAccessFile(f, "w");
+        raf.seek(offset);
+        raf.write(data, 0, data.length);
+        raf.close();
     }
 
     // The following methods are documented in Command.java.
