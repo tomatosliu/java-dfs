@@ -47,7 +47,7 @@ public class Path implements Iterable<String>, Comparable<Path>, Serializable
     public Path(Path path, String component)
     {
         this(path.toString());
-        if (component.equals("") || components.contains(":") || components.contains("/")){
+        if (component.equals("") || component.contains(":") || component.contains("/")){
             throw new IllegalArgumentException();
         }
         this.components.add(component);
@@ -68,10 +68,14 @@ public class Path implements Iterable<String>, Comparable<Path>, Serializable
     public Path(String path)
     {
         this();
-        if (!path.startWith("/") || path.contains(":")){
+        if (!path.startsWith("/") || path.contains(":")){
             throw new IllegalArgumentException();
         }
-        components.add(path.substring(0).split("/"));
+        for (String s : path.substring(1).split("/")){
+            if(!s.isEmpty()){
+                components.add(s);
+            }
+        }
 
     }
 
@@ -101,7 +105,7 @@ public class Path implements Iterable<String>, Comparable<Path>, Serializable
      */
     public static Path[] list(File directory) throws FileNotFoundException
     {
-        if(!directory.exist()){
+        if(!directory.exists()){
             throw new FileNotFoundException();
         }
         if(!directory.isDirectory()){
@@ -121,7 +125,9 @@ public class Path implements Iterable<String>, Comparable<Path>, Serializable
                 pathList.add(new Path("/" + f.getName()));
             }
         }
-        return pathList.toArray();
+        Path[] result = new Path[pathList.size()];
+        pathList.toArray(result);
+        return result;
     }
 
     /** Determines whether the path represents the root directory.
@@ -180,7 +186,7 @@ public class Path implements Iterable<String>, Comparable<Path>, Serializable
     {
         String thisString = toString();
         String otherString = other.toString();
-        if(thisString.length() <= otherString.length()){
+        if(thisString.length() < otherString.length()){
             return false;
         }
         return thisString.startsWith(otherString);
@@ -239,7 +245,7 @@ public class Path implements Iterable<String>, Comparable<Path>, Serializable
         /**
          * how about bin/cat and bin/dog ? 0?
          */
-        return toString().split("/").size() - other.toString().split("/").size();
+        return toString().split("/").length - other.toString().split("/").length;
     }
 
     /** Compares two paths for equality.
@@ -279,7 +285,7 @@ public class Path implements Iterable<String>, Comparable<Path>, Serializable
         }
 
         StringBuffer sb = new StringBuffer();
-        for (String component : components.subList(0, components.size())) {
+        for (String component : components) {
             sb.append("/");
             sb.append(component);
         }
@@ -290,10 +296,10 @@ public class Path implements Iterable<String>, Comparable<Path>, Serializable
 /**
  * Adaptor of the itertor without allow removing.
  */
-class IteratorAdapter implements Iterator<E>{
-    private Iterator<E> iterator;
+class IteratorAdapter implements Iterator<String>{
+    private Iterator<String> iterator;
 
-    public IteratorAdapter(Iterator<E> iterator){
+    public IteratorAdapter(Iterator<String> iterator){
         this.iterator = iterator;
     }
 

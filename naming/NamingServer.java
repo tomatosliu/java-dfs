@@ -211,7 +211,7 @@ public class NamingServer implements Service, Registration
     @Override
     public Storage getStorage(Path file) throws FileNotFoundException
     {
-
+        return null;
     }
 
     // The method register is documented in Registration.java.

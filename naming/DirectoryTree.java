@@ -74,6 +74,8 @@ public class DirectoryTree {
         }
         node.pathComps.addStorageStub(storage);
         node.pathComps.addCommandStub(command);
+
+        return false;
     }
 
     /** Delete the node of Path p.
