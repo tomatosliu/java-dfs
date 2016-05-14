@@ -152,7 +152,7 @@ public class StorageServer implements Storage, Command
         File f = file.toFile(this.root);
         if(!f.exists() || f.isDirectory())
             throw new FileNotFoundException();
-        if((offset + length > f.length()) || (length < 0))
+        if((offset + length > f.length()) || (length < 0) || (offset < 0))
             throw new IndexOutOfBoundsException();
         RandomAccessFile raf = new RandomAccessFile(f, "r");
         byte[] bytesRead = new byte[length];
@@ -171,7 +171,7 @@ public class StorageServer implements Storage, Command
             throw new FileNotFoundException();
         if(offset < 0)
             throw new IndexOutOfBoundsException();
-        RandomAccessFile raf = new RandomAccessFile(f, "w");
+        RandomAccessFile raf = new RandomAccessFile(f, "rw");
         raf.seek(offset);
         raf.write(data, 0, data.length);
         raf.close();
