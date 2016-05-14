@@ -139,6 +139,7 @@ public class StorageServer implements Storage, Command
     @Override
     public synchronized long size(Path file) throws FileNotFoundException
     {
+        System.out.println("=========================== size(file)");
         File f = file.toFile(this.root);
         if(!f.exists() || f.isDirectory())
             throw new FileNotFoundException();
@@ -213,7 +214,7 @@ public class StorageServer implements Storage, Command
             return f.createNewFile();
         } catch(Exception e){
             e.printStackTrace();
-        } 
+        }
 
         return false;
     }
@@ -235,7 +236,7 @@ public class StorageServer implements Storage, Command
     @Override
     public synchronized boolean delete(Path path)
     {
-        
+
         if(path == null){
             throw new NullPointerException("path is null, failure to delete");
         }
@@ -259,8 +260,8 @@ public class StorageServer implements Storage, Command
             for(File fsub:sub){
                 if(!deleteHelper(fsub)){
                    deleteDir = false;
-                   break; 
-                } 
+                   break;
+                }
             }
 
             return deleteDir;
@@ -290,12 +291,12 @@ public class StorageServer implements Storage, Command
         throws RMIException, FileNotFoundException, IOException
     {
         if(file == null || server == null){
-            throw new NullPointerException("failure to copy"); 
+            throw new NullPointerException("failure to copy");
         }
-        
+
         // throws FileNotFoundException
         long size = server.size(file);
-        
+
         delete(file);
 
         create(file);
@@ -311,7 +312,7 @@ public class StorageServer implements Storage, Command
             }else{
                 written = (int)left;
             }
-            
+
             // return IOE/RMI exception
             byte[] data = server.read(file, offset, written);
             this.write(file,offset,data);
@@ -330,14 +331,3 @@ public class StorageServer implements Storage, Command
 
     }
 }
-
-
-
-
-
-
-
-
-
-
-
