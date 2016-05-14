@@ -1,9 +1,14 @@
 package rmi;
 
 import java.net.*;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
+import java.lang.Exception.*;
 import java.lang.reflect.Proxy;
-import java.lang.reflect.InvocationHandler;
+
+/**
+ * @author: Yilun Zhang, Qiao Zhang
+ * @date: 2016/04/26
+ */
 
 /** RMI stub factory.
 
@@ -48,19 +53,37 @@ public abstract class Stub
                       <code>RMIException</code>, or if an object implementing
                       this interface cannot be dynamically created.
      */
+
     public static <T> T create(Class<T> c, Skeleton<T> skeleton)
-        throws UnknownHostException, IllegalStateException, NullPointerException
-    {
-        if(skeleton.address == null) {
-            throw new IllegalStateException();
-        }
+        throws UnknownHostException
+    {   
+      if(c == null || skeleton == null){
+        throw new NullPointerException();
+      }
+      
+      if(!skeleton.getRunning() && skeleton.getHostName() == null ){
+        throw new IllegalStateException();
+      }
+      //|| 
 
-        if((skeleton.address.getAddress().isAnyLocalAddress()) && ((Integer) skeleton.address.getPort() != null)
-                && (skeleton.address.getHostName() == null)) {
-            throw new UnknownHostException();
-        }
+      if(skeleton.getHostName().equals("0.0.0.0")){
+        //throw new UnknownHostException();
+        InetAddress localhost = InetAddress.getLocalHost();
+      }
 
-        return create(c, skeleton.address);
+
+      if(!c.isInterface() || !errorCheck(c)){
+        throw new Error("error about c.");
+      }
+
+        String hostname = skeleton.getHostName();
+        int port = skeleton.getPortNumber();
+        InetSocketAddress address = new InetSocketAddress(hostname,port);
+   
+        MyInvocationHandler handler = new MyInvocationHandler(address,c);
+        Object myProxy = (T) Proxy.newProxyInstance(c.getClassLoader(), new Class[]{c}, handler);
+        
+        return (T)myProxy;
     }
 
     /** Creates a stub, given a skeleton with an assigned address and a hostname
@@ -93,18 +116,27 @@ public abstract class Stub
                       <code>RMIException</code>, or if an object implementing
                       this interface cannot be dynamically created.
      */
-    public static <T> T create(Class<T> c, Skeleton<T> skeleton, String hostname)
-        throws IllegalStateException, NullPointerException, Error
+    public static <T> T create(Class<T> c, Skeleton<T> skeleton,
+                               String hostname)
     {
-        if(skeleton == null || hostname == null) {
-            throw new NullPointerException();
+        if(skeleton.getPortNumber()==0){
+          throw new IllegalStateException();
         }
 
-        if(skeleton.address == null) {
-            throw new IllegalStateException();
+        if(c == null || skeleton == null || hostname ==null){
+          throw new NullPointerException();
         }
 
-        return create(c, new InetSocketAddress(hostname, skeleton.address.getPort()));
+        if(!c.isInterface() || !errorCheck(c)){
+          throw new Error("error about c.");
+        }
+
+        int port = skeleton.getPortNumber();
+        InetSocketAddress address = new InetSocketAddress(hostname,port);
+
+        MyInvocationHandler handler = new MyInvocationHandler(address,c);
+        Object myProxy = (T) Proxy.newProxyInstance(c.getClassLoader(), new Class[]{c}, handler);
+        return (T)myProxy;
     }
 
     /** Creates a stub, given the address of a remote server.
@@ -125,43 +157,43 @@ public abstract class Stub
                       this interface cannot be dynamically created.
      */
     public static <T> T create(Class<T> c, InetSocketAddress address)
-        throws NullPointerException, Error
     {
-        if(c == null || address == null) {
-            throw new NullPointerException();
+        if(c == null || address == null){
+          throw new NullPointerException();
         }
 
-        if(!isRemoteInterface(c)) {
-            throw new Error();
+
+        if(!c.isInterface() || !errorCheck(c)){
+          throw new Error("error about c.");
         }
 
-        if(!c.isInterface()) {
-            throw new Error();
-        }
-
-        // Create a Proxy object for the interface c
-        InvocationHandler handler = new RMIInvocationHandler(c, address);
-
-        @SuppressWarnings("unchecked")
-        T stub = (T) Proxy.newProxyInstance(c.getClassLoader(), new Class<?>[]{c}, handler);
-
-        return stub;
+        InetSocketAddress add = address;
+        MyInvocationHandler handler = new MyInvocationHandler(add,c);
+        Object myProxy = (T)Proxy.newProxyInstance(c.getClassLoader(), new Class[]{c}, handler);
+        return (T)myProxy;
     }
 
-    private static <T> boolean isRemoteInterface(Class<T> intf) {
-        Method[] methods = intf.getMethods();
-        for (Method m: methods) {
-            Class<?>[] ecpt = m.getExceptionTypes();
-            boolean found = false;
-            for(Class<?> c: ecpt) {
-                if(c.getName().equals("rmi.RMIException")) {
-                    found = true;
-                    break;
-                }
-            }
-            if(!found)
-                return false;
+    /** Check whether c is a valid remote interface.
+     */
+    private static <T> boolean errorCheck(Class<T> c){
+
+      Method[] methods = c.getMethods();
+
+      for(int i = 0; i<methods.length; i++){
+        boolean contain = false;
+        for(Class e: methods[i].getExceptionTypes()){
+          if(e.getName().contains("RMIException")){
+            contain = true;
+            break;
+          }
         }
-        return true;
+
+        if(!contain) return false;
+      }
+
+      return true;
+
     }
+
+
 }
