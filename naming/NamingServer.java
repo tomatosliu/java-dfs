@@ -231,11 +231,7 @@ public class NamingServer implements Service, Registration
         List<Path> list = new LinkedList<Path>();
         for(Path path : files){
             boolean success = false;
-            try {
-                success = dirTree.insertPathStubs(path, client_stub, command_stub);
-            } catch (FileNotFoundException e){
-
-            }
+            success = dirTree.insertPathStubs(path, client_stub, command_stub);
             if(!success){
                 list.add(path);
                 try {
