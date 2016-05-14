@@ -38,6 +38,7 @@ public class PathComponents {
     public void addCommandStub(Command command) {
         this.commandStubs.add(command);
     }
+
     public void addStorageStub(ArrayList<Storage> storage) {
         this.storageStubs.addAll(storage);
     }

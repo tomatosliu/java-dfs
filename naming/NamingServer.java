@@ -36,15 +36,15 @@ import naming.DirectoryTree.DirectoryNode;
 public class NamingServer implements Service, Registration
 {
     /* Class member variables for mapping paths to components */
-    DirectoryTree dirTree = null;
+    DirectoryTree dirTree;
 
     /* Skeleton for Service Interface */
-    Skeleton<Service> serviceSkeleton = null;
+    Skeleton<Service> serviceSkeleton;
 
     /* Skeleton for Registration Interface*/
-    Skeleton<Registration> registSkeleton = null;
+    Skeleton<Registration> registSkeleton;
 
-    Scheduler scheduler = null;
+    Scheduler scheduler;
     /** Creates the naming server object.
 
         <p>
