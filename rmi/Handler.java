@@ -55,7 +55,9 @@ public class Handler extends Thread {
             Throwable to = null;
 
             try {
+            	
 	    	    Object returnVal = method.invoke(skeleton.getRemoteObject(), args);
+	    	   
 		    		responseMsg = new RMImessage(returnVal);
 		    } catch (Throwable e) {
 		    	responseMsg = new RMImessage(e.getCause(), true);
