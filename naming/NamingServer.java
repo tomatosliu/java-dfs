@@ -221,7 +221,25 @@ public class NamingServer implements Service, Registration
     public Path[] register(Storage client_stub, Command command_stub,
                            Path[] files)
     {
-        throw new UnsupportedOperationException("not implemented");
+        // If any of the arguments is null
+        if (client_stub == null || command_stub == null || files == null){
+            throw new NullPointerException();
+        }
+        // If the storage server is already registered.
+        scheduler.addStorageServer(client_stub, command_stub);
+
+        for(Path path : files){
+            boolean success = dirTree.insertPathStubs(path, client_stub, command_stub);
+            if(!success){
+                command_stub.delete(path);
+            }
+        }
     }
 
 }
+
+
+
+
+
+
