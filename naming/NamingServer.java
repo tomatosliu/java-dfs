@@ -7,8 +7,8 @@ import java.util.*;
 import rmi.*;
 import common.*;
 import storage.*;
+import naming.util.*;
 
-import naming.DirectoryTree.DirectoryNode;
 
 /** Naming server.
 
@@ -159,12 +159,12 @@ public class NamingServer implements Service, Registration
         // Note: the directory tree is consistent with the files exists on the underlying filesystem
         //       so if it throws IllegalStateException, the only situation is that there is no
         //       storage server registered.
-        PathComponents pathComp = scheduler.pickStorageServer();
+        PathComponents pathComp = this.scheduler.pickStorageServer();
 
         // 2. Create node in the directory tree
         //    If the parent does not exist, then throw FileNotFoundException
         //    If it returns false, it means the file exists.
-        boolean created = this.dirTree.createNode(file, false);
+        boolean created = this.dirTree.insertNode(file, false);
         if(!created) {
             return false;
         }
@@ -174,7 +174,7 @@ public class NamingServer implements Service, Registration
 
         // 4. Create directory on Storage Server
         //    This may throw a RMIException.
-        pathComp.getCommandStub().get(0).create(file);
+        pathComp.getCommandStub().create(file);
 
         return true;
     }
@@ -185,7 +185,7 @@ public class NamingServer implements Service, Registration
         // 1. Create node in the directory tree
         //    If the parent does not exist, then throw FileNotFoundException
         //    If it returns false, it means the file exists.
-        boolean created = this.dirTree.createNode(directory, true);
+        boolean created = this.dirTree.insertNode(directory, true);
         if(!created) {
             return false;
         }
@@ -211,7 +211,9 @@ public class NamingServer implements Service, Registration
     @Override
     public Storage getStorage(Path file) throws FileNotFoundException
     {
-        return null;
+        ArrayList<PathComponents> servers = this.dirTree.getNode(file).getPathComps();
+        PathComponents pathComp = this.scheduler.pickStorageServer(servers);
+        return pathComp.getStorageStub();
     }
 
     // The method register is documented in Registration.java.

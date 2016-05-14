@@ -5,7 +5,10 @@ import java.net.*;
 import rmi.*;
 
 /** Default port numbers for the naming server and convenience methods for
-    making naming server stubs. */
+    making naming server stubs.
+
+    Clients and Storage Servers can get NamingServer stubs from here.
+  */
 public abstract class NamingStubs
 {
     /** Default naming server client service port. */
