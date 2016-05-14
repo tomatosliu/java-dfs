@@ -2,10 +2,12 @@ package storage;
 
 import java.io.*;
 import java.net.*;
+import java.util.Arrays;
 
 import common.*;
 import rmi.*;
 import naming.*;
+
 
 /** Storage server.
 
@@ -97,7 +99,7 @@ public class StorageServer implements Storage, Command
 
     public boolean deleteEmptyDirectory(File root){
         if(root == null)
-            return ;
+            return false;
         boolean isEmpty = true;
         File[] files = root.listFiles();
         for(File f : files){
@@ -194,7 +196,7 @@ public class StorageServer implements Storage, Command
         }
 
         if(file.isRoot()){
-            system.out.println("file is root, failure to create.");
+            System.out.println("file is root, failure to create.");
             return false;
         }
 
@@ -210,8 +212,8 @@ public class StorageServer implements Storage, Command
         try{
             return f.createNewFile();
         } catch(Exception e){
-            throw new RMIException(e.getCause());
-        }
+            e.printStackTrace();
+        } 
 
         return false;
     }
@@ -254,7 +256,7 @@ public class StorageServer implements Storage, Command
         }else if(file.isDirectory()){
             File[] sub = file.listFiles();
 
-            for(fsub:sub){
+            for(File fsub:sub){
                 if(!deleteHelper(fsub)){
                    deleteDir = false;
                    break; 
@@ -307,7 +309,7 @@ public class StorageServer implements Storage, Command
             if(left > Integer.MAX_VALUE){
                 written = Integer.MAX_VALUE;
             }else{
-                written = left;
+                written = (int)left;
             }
             
             // return IOE/RMI exception
