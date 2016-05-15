@@ -93,8 +93,12 @@ public class NamingServer implements Service, Registration
      */
     public void stop()
     {
+        System.out.println("Naming Server stop");
         this.serviceSkeleton.stop();
+        System.out.println("serviceSkeleton stopped");
         this.registSkeleton.stop();
+        System.out.println("registSkeleton stopped");
+        stopped(null);
     }
 
     /** Indicates that the server has completely shut down.
