@@ -51,11 +51,13 @@ public class ServerThread<T> extends Thread {
             if(!method.isAccessible()) {
                 method.setAccessible(true);
             }
-            ret = method.invoke(this.server, params);
+            System.out.println("+++++++++++++++++++ Invoked: " + method.getName());
 
+            ret = method.invoke(this.server, params);
         }
         catch(Exception e) {
             if(e instanceof InvocationTargetException) {
+                System.out.println("++++++++++++++++++ Invoke Exception: " + e.getCause());
                 ret = e;
             }
             else {

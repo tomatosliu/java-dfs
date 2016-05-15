@@ -20,18 +20,19 @@ public class DirectoryTree {
         DirectoryNode curNode = this.root;
         while(true) {
             Path curPath = curNode.path;
+
             if(curPath.equals(p)) {
                 return curNode;
             }
             else {
-                if(p.isSubpath(curPath)) {
-                    curNode = curNode.sons.get(p);
-                }
-                else {
+                // System.out.println("\n-------------- getting next node " + curPath);
+                curNode = curNode.getNextNode(p);
+                if(curNode == null) {
                     break;
                 }
             }
         }
+        // System.out.println("\n--------------- getNode " + p.toString());
         return null;
     }
 
@@ -69,7 +70,7 @@ public class DirectoryTree {
         }
         node.addDirComp(pathComp);
     }
-
+    /*
     private boolean createDir(Path file){
         if(getNode(file) != null){
             return true;
@@ -81,12 +82,43 @@ public class DirectoryTree {
         }catch(FileNotFoundException e){
             return false;
         }
+    }*/
+    private boolean createDir(Path file) {
+        Stack<Path> pstack = new Stack<Path>();
+        Path curPath = file;
+
+        // Find out the stack of non-created directories
+        while(!curPath.isRoot()) {
+            System.out.println("\n--------------- finding dir " + curPath.toString());
+            DirectoryNode node = getNode(curPath);
+
+            if(node != null) {
+                break;
+            }
+            else {
+                pstack.push(curPath);
+            }
+            curPath = curPath.parent();
+        }
+
+        // Create all the directories
+        try{
+            while(!pstack.isEmpty()) {
+                curPath = pstack.pop();
+                getNode(curPath.parent()).addSubDirNode(curPath, true);
+            }
+        }
+        catch(FileNotFoundException e) {
+            return false;
+        }
+        return true;
     }
 
     /** API for registeration.
       */
     public boolean insertPathStubs(Path file, Storage storage, Command command){
         createDir(file.parent());
+        System.out.println("\n------------ sucess create dir " + file.parent());
         if(getNode(file.parent()).sons.containsKey(file)){
             return false;
         }else {
@@ -95,7 +127,10 @@ public class DirectoryTree {
             }catch(FileNotFoundException e){
                 return false;
             }
-            getNode(file).addDirComp(new PathComponents(storage, command));
+
+            DirectoryNode node = getNode(file);
+
+            node.addDirComp(new PathComponents(storage, command));
             return true;
         }
     }

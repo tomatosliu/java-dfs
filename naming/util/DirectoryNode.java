@@ -22,6 +22,9 @@ public class DirectoryNode {
         if(this.isDirectory) {
             this.sons = new HashMap<Path, DirectoryNode>();
         }
+        else {
+            this.pathComps = new ArrayList<PathComponents>();
+        }
     }
 
     public boolean isDirectory() {
@@ -38,6 +41,16 @@ public class DirectoryNode {
 
     public ArrayList<PathComponents> getPathComps() {
         return this.pathComps;
+    }
+
+    public DirectoryNode getNextNode(Path path) {
+        DirectoryNode res = null;
+        for(Path p: sons.keySet()) {
+            if(path.isSubpath(p)) {
+                return sons.get(p);
+            }
+        }
+        return null;
     }
 
     /** add a sub directory into current directory node.

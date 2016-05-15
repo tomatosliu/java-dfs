@@ -91,6 +91,7 @@ public class StorageServer implements Storage, Command
         Storage storageStub = Stub.create(Storage.class, this.storageSkeleton, hostname);
         Command commandStub = Stub.create(Command.class, this.commandSkeleton, hostname);
         Path[] filesToDelete = naming_server.register(storageStub, commandStub, Path.list(this.root));
+
         for(Path f : filesToDelete){
             this.delete(f);
         }
@@ -205,7 +206,7 @@ public class StorageServer implements Storage, Command
         if(f.exists()) return false;
 
         //System.out.println("=============== creating file2");
-        
+
         Path parent = file.parent();
 
        // System.out.println("=============== creating file3");
@@ -242,7 +243,7 @@ public class StorageServer implements Storage, Command
     @Override
     public synchronized boolean delete(Path path)
     {
-
+        System.out.println("\n============== Storage Server delete: " + path);
         if(path == null){
             throw new NullPointerException("path is null, failure to delete");
         }

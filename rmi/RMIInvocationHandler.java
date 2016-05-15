@@ -64,20 +64,21 @@ public class RMIInvocationHandler implements InvocationHandler, Serializable {
         }
 
         try {
+            System.out.println("--------------- Connecting Skeleton: " + this.skeletonAddress);
             socket = new Socket(this.skeletonAddress.getAddress(),
                                        this.skeletonAddress.getPort());
             objOutput = new ObjectOutputStream(socket.getOutputStream());
             objOutput.flush();
             objInput = new ObjectInputStream(socket.getInputStream());
 
-            //System.out.println("--------------- Connected!");
             objOutput.writeObject(method.getName());
             //System.out.println("\n\n---Writing " + method.getParameterTypes());
             objOutput.writeObject(method.getParameterTypes());
             //System.out.println("\n\n---Writing " + Arrays.toString(args));
             objOutput.writeObject(args);
-            //objOutput.flush();
+            objOutput.flush();
 
+            System.out.println("--------------- Finished Skeleton: " + this.skeletonAddress);
             result = objInput.readObject();
         }
         catch(UnknownHostException e) {

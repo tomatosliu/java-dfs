@@ -40,7 +40,8 @@ public class Scheduler {
       */
     public void addStorageServer(Storage storage, Command command) {
         for(PathComponents s: this.servers) {
-            if(s.getStorageStub() == storage || s.getCommandStub() == command) {
+            if(s.getStorageStub().equals(storage)
+                    || s.getCommandStub().equals(command)) {
                 throw new IllegalStateException();
             }
         }
