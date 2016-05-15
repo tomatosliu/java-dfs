@@ -93,8 +93,12 @@ public class NamingServer implements Service, Registration
      */
     public void stop()
     {
+        System.out.println("Naming Server stop");
         this.serviceSkeleton.stop();
+        System.out.println("serviceSkeleton stopped");
         this.registSkeleton.stop();
+        System.out.println("registSkeleton stopped");
+        stopped(null);
     }
 
     /** Indicates that the server has completely shut down.
@@ -231,11 +235,7 @@ public class NamingServer implements Service, Registration
         List<Path> list = new LinkedList<Path>();
         for(Path path : files){
             boolean success = false;
-            try {
-                success = dirTree.insertPathStubs(path, client_stub, command_stub);
-            } catch (FileNotFoundException e){
-
-            }
+            success = dirTree.insertPathStubs(path, client_stub, command_stub);
             if(!success){
                 list.add(path);
                 try {

@@ -70,17 +70,34 @@ public class DirectoryTree {
         node.addDirComp(pathComp);
     }
 
+    private boolean createDir(Path file){
+        if(getNode(file) != null){
+            return true;
+        }
+        createDir(file.parent());
+        try{
+            insertNode(file, true);
+            return true;
+        }catch(FileNotFoundException e){
+            return false;
+        }
+    }
+
     /** API for registeration.
       */
-    public boolean insertPathStubs(Path file, Storage storage, Command command)
-            throws FileNotFoundException {
-        insertNode(file, false);
-        DirectoryNode node = getNode(file);
-        if(node == null) {
-            throw new FileNotFoundException();
+    public boolean insertPathStubs(Path file, Storage storage, Command command){
+        createDir(file.parent());
+        if(getNode(file.parent()).sons.containsKey(file)){
+            return false;
+        }else {
+            try {
+                insertNode(file, false);
+            }catch(FileNotFoundException e){
+                return false;
+            }
+            getNode(file).addDirComp(new PathComponents(storage, command));
+            return true;
         }
-        node.addDirComp(new PathComponents(storage, command));
-        return true;
     }
 
     /** Delete the node of Path p.
