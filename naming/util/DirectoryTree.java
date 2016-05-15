@@ -25,27 +25,26 @@ public class DirectoryTree {
                 return curNode;
             }
             else {
-                // System.out.println("\n-------------- getting next node " + curPath);
                 curNode = curNode.getNextNode(p);
                 if(curNode == null) {
                     break;
                 }
             }
         }
-        // System.out.println("\n--------------- getNode " + p.toString());
         return null;
     }
 
-    /** Insert a directory node into the tree, if it does not exist.
+    /** Insert a file node into the tree, if it does not exist.
+        This will success when the directory already exists. If not, please call creatDir first to
+        create parent directory.
 
         <p>
         This only takes charge of creating a node without path components.
-        @return <code>true</code>, if successiful
-                <code>false</code>, if the file path already exists.
-        @throws FileNotFoundException If the parent directory does not exist.
+        @return <code>true</code>, if success.
+                <code>false</code>, if the file path already exists or file is root.
+        @throws FileNotFoundException If the parent directory does not exist or
      */
     public boolean insertNode(Path file, boolean isDirectory) throws FileNotFoundException {
-        // TODO: if the directory does not exist, the directories need to be created.
         if(file.isRoot()) {
             return false;
         }
@@ -60,35 +59,29 @@ public class DirectoryTree {
     }
 
     /** Insert path component into a Path.
+        This will success when the directory already exists. If not, please call creatDir first to
+        create parent directory.
+        Also, this method usually follows insertNode.
 
         <p>
         Take charge of insert path component into the Path, the caller need to call scheduler to
         get a storage server for operating.
-        @throws FileNotFoundException If the path does not exist.
+        @throws FileNotFoundException If the path does not exist or the path is a directory.
      */
     public void insertPathComp(Path p, PathComponents pathComp) throws FileNotFoundException {
         DirectoryNode node = getNode(p);
-        if(node == null) {
+        if(node == null  || node.isDirectory()) {
             throw new FileNotFoundException();
         }
         node.addDirComp(pathComp);
     }
-    /*
-    private boolean createDir(Path file){
-        if(getNode(file) != null){
-            return true;
-        }
-        createDir(file.parent());
-        try{
-            insertNode(file, true);
-            return true;
-        }catch(FileNotFoundException e){
-            return false;
-        }
-    }*/
-    private boolean createDir(Path file) {
+
+    /** Create a directory.
+     */
+
+    private boolean createDir(Path directory) {
         Stack<Path> pstack = new Stack<Path>();
-        Path curPath = file;
+        Path curPath = directory;
 
         // Find out the stack of non-created directories
         while(!curPath.isRoot()) {
@@ -116,7 +109,10 @@ public class DirectoryTree {
         return true;
     }
 
-    /** API for registeration.
+    /** API for registeration. Insert the stubs of storage server
+
+        @return <code>true</code> if success.
+                <code>false</code> if there is Path file already exists on the directory tree.
       */
     public boolean insertPathStubs(Path file, Storage storage, Command command){
         createDir(file.parent());
@@ -157,6 +153,4 @@ public class DirectoryTree {
         dirNode.sons.remove(p);
         return true;
     }
-
-    // TODO: when writing, you may need to delete all other stubs except that storage server.
 }

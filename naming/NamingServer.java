@@ -238,12 +238,10 @@ public class NamingServer implements Service, Registration
         }
         // If the storage server is already registered.
         scheduler.addStorageServer(client_stub, command_stub);
-        // System.out.println("\n---------- TestStorageServer registered.");
         List<Path> list = new LinkedList<Path>();
         // Register the fourth storage server with the root directory among its
         // list of files. The naming server should silently ignore this attempt.
         for(Path path : files){
-            // System.out.println("\n------------- register " + path.toString());
             if(path.isRoot()) {
                 continue;
             }
@@ -251,12 +249,6 @@ public class NamingServer implements Service, Registration
             success = dirTree.insertPathStubs(path, client_stub, command_stub);
             if(!success){
                 list.add(path);
-                // try {
-                //     System.out.println("------------ Naming Server deleting: " + path);
-                //     // command_stub.delete(path);
-                // } catch (RMIException e){
-                //     throw e;
-                // }
             }
         }
         Path[] result = new Path[list.size()];
