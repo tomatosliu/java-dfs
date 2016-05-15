@@ -320,7 +320,6 @@ public class AccessTest extends StorageTest
         // Try to get the size of an absent file.
         try
         {
-            System.out.println("\n================= Test size method");
             client_stub.size(absent_file);
             throw new TestFailed("size method returned for non-existent file");
         }

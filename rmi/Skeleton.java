@@ -100,7 +100,6 @@ public class Skeleton<T>
     {
         this(c, server);
         this.address = address;
-        System.out.printf("\n\n----- Create a Skeleton on %d-----\n", this.address.getPort());
     }
 
     /** Called when the listening thread exits.
@@ -187,7 +186,7 @@ public class Skeleton<T>
             if(this.address == null
                     || this.address.getPort() == 0 || this.address.getHostName() == null) {
                 this.socketServer = new ServerSocket(0);
-                System.out.printf("\n\n----- Start a Skeleton on default port %s-----\n", this.socketServer.getInetAddress());
+                // System.out.printf("\n\n----- Start a Skeleton on default port %s-----\n", this.socketServer.getInetAddress());
                 this.address = new InetSocketAddress(this.socketServer.getInetAddress(),
                                                         this.socketServer.getLocalPort());
             }
@@ -197,7 +196,7 @@ public class Skeleton<T>
                                             1000,
                                             this.address.getAddress()
                                             );
-                System.out.printf("\n\n----- Start a Skeleton on %d-----\n", this.address.getPort());
+                // System.out.printf("\n\n----- Start a Skeleton on %d-----\n", this.address.getPort());
             }
         }
         catch(Exception e) {

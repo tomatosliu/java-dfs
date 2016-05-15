@@ -139,7 +139,6 @@ public class StorageServer implements Storage, Command
     @Override
     public synchronized long size(Path file) throws FileNotFoundException
     {
-        System.out.println("=========================== size(file)");
         File f = file.toFile(this.root);
         if(!f.exists() || f.isDirectory())
             throw new FileNotFoundException();
@@ -267,7 +266,7 @@ public class StorageServer implements Storage, Command
             for(File fsub:sub){
                 deleteDir = this.deleteHelper(fsub) && deleteDir;
             }
-            
+
             if(deleteDir){
                 file.delete();
             }

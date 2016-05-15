@@ -51,7 +51,6 @@ public class ServerThread<T> extends Thread {
             if(!method.isAccessible()) {
                 method.setAccessible(true);
             }
-            System.out.println("\n---------------- Server Thread " + method.getName());
             ret = method.invoke(this.server, params);
 
         }
