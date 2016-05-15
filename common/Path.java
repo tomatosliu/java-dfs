@@ -145,7 +145,7 @@ public class Path implements Iterable<String>, Comparable<Path>, Serializable
         @throws IllegalArgumentException If the path represents the root
                                          directory, and therefore has no parent.
      */
-   /* public Path parent()
+    public Path parent()
     {
         if (isRoot()){
             throw new IllegalArgumentException();
@@ -155,9 +155,13 @@ public class Path implements Iterable<String>, Comparable<Path>, Serializable
             sb.append("/");
             sb.append(component);
         }
+
+        if(sb.length() == 0){
+            sb.append("/");
+        }
         return new Path(sb.toString());
-    }*/
-     public Path parent()
+    }
+    /* public Path parent()
     {
         if (this.isRoot()){
             throw new IllegalArgumentException();
@@ -167,7 +171,7 @@ public class Path implements Iterable<String>, Comparable<Path>, Serializable
             this.components.add(last);
             return new Path(parentPath);
         }
-    }
+    }*/
 
     /** Returns the last component in the path.
 
