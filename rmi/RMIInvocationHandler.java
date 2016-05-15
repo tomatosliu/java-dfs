@@ -64,7 +64,6 @@ public class RMIInvocationHandler implements InvocationHandler, Serializable {
         }
 
         try {
-            System.out.println("--------------- Connecting Skeleton: " + this.skeletonAddress);
             socket = new Socket(this.skeletonAddress.getAddress(),
                                        this.skeletonAddress.getPort());
             objOutput = new ObjectOutputStream(socket.getOutputStream());
@@ -78,7 +77,6 @@ public class RMIInvocationHandler implements InvocationHandler, Serializable {
             objOutput.writeObject(args);
             objOutput.flush();
 
-            System.out.println("--------------- Finished Skeleton: " + this.skeletonAddress);
             result = objInput.readObject();
         }
         catch(UnknownHostException e) {

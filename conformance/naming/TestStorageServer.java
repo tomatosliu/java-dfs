@@ -110,7 +110,6 @@ class TestStorageServer implements Storage, Command
     {
         // Start storage server skeletons.
         startSkeletons();
-        System.out.println("\n------------ TestStorageServer Skeleton Started.");
         // Register the storage server with the naming server.
         Path[]      delete_files =
             naming_server.register(client_stub, command_stub, offer_files);
@@ -179,7 +178,6 @@ class TestStorageServer implements Storage, Command
     @Override
     public boolean delete(Path file)
     {
-        System.out.println("\n=========== TestStorageServer delete: " + file);
         test.failure(new TestFailed("unexpected call to delete method in " +
                                     "storage server"));
 

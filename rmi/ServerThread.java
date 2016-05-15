@@ -27,11 +27,10 @@ public class ServerThread<T> extends Thread {
             objInput = new ObjectInputStream(this.socket.getInputStream());
         }
         catch(Exception e) {
-            System.err.println(e.getMessage());
             close(objInput);
             close(objOutput);
             // Exception thrown in service response.
-            this.skeleton.service_error(new RMIException("Exception thrown in service response."));
+            // this.skeleton.service_error(new RMIException("Exception thrown in service response."));
             return;
         }
 
@@ -51,13 +50,11 @@ public class ServerThread<T> extends Thread {
             if(!method.isAccessible()) {
                 method.setAccessible(true);
             }
-            System.out.println("+++++++++++++++++++ Invoked: " + method.getName());
 
             ret = method.invoke(this.server, params);
         }
         catch(Exception e) {
             if(e instanceof InvocationTargetException) {
-                System.out.println("++++++++++++++++++ Invoke Exception: " + e.getCause());
                 ret = e;
             }
             else {

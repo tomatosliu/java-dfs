@@ -142,15 +142,18 @@ public class NamingServer implements Service, Registration
     public String[] list(Path directory) throws FileNotFoundException
     {
         DirectoryNode node = this.dirTree.getNode(directory);
-        if(node == null) {
+        if(node == null || !node.isDirectory()) {
             throw new FileNotFoundException();
         }
 
         List<String> res = new ArrayList<String>();
         for(DirectoryNode n: node.getSons().values()) {
-            res.add(n.getPath());
+            String[] pstr = n.getPath().split("/");
+            res.add(pstr[pstr.length-1]);
         }
-        return (String[])res.toArray();
+
+        // Bug: toArray
+        return res.toArray(new String[res.size()]);
     }
 
     @Override
@@ -215,7 +218,11 @@ public class NamingServer implements Service, Registration
     @Override
     public Storage getStorage(Path file) throws FileNotFoundException
     {
-        ArrayList<PathComponents> servers = this.dirTree.getNode(file).getPathComps();
+        DirectoryNode node = this.dirTree.getNode(file);
+        if(node == null || node.isDirectory()) {
+            throw new FileNotFoundException();
+        }
+        ArrayList<PathComponents> servers = node.getPathComps();
         PathComponents pathComp = this.scheduler.pickStorageServer(servers);
         return pathComp.getStorageStub();
     }
@@ -242,7 +249,6 @@ public class NamingServer implements Service, Registration
             }
             boolean success = false;
             success = dirTree.insertPathStubs(path, client_stub, command_stub);
-            System.out.println("\n------------- success register " + path.toString());
             if(!success){
                 list.add(path);
                 // try {

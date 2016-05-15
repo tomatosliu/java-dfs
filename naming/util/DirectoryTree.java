@@ -46,10 +46,13 @@ public class DirectoryTree {
      */
     public boolean insertNode(Path file, boolean isDirectory) throws FileNotFoundException {
         // TODO: if the directory does not exist, the directories need to be created.
+        if(file.isRoot()) {
+            return false;
+        }
 
         Path pnt = file.parent();
         DirectoryNode dirNode = getNode(pnt);
-        if(dirNode == null) {
+        if(dirNode == null || !dirNode.isDirectory()) {
             throw new FileNotFoundException();
         }
 
@@ -89,7 +92,6 @@ public class DirectoryTree {
 
         // Find out the stack of non-created directories
         while(!curPath.isRoot()) {
-            System.out.println("\n--------------- finding dir " + curPath.toString());
             DirectoryNode node = getNode(curPath);
 
             if(node != null) {
@@ -118,7 +120,6 @@ public class DirectoryTree {
       */
     public boolean insertPathStubs(Path file, Storage storage, Command command){
         createDir(file.parent());
-        System.out.println("\n------------ sucess create dir " + file.parent());
         if(getNode(file.parent()).sons.containsKey(file)){
             return false;
         }else {

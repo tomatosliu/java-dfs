@@ -243,7 +243,6 @@ public class StorageServer implements Storage, Command
     @Override
     public synchronized boolean delete(Path path)
     {
-        System.out.println("\n============== Storage Server delete: " + path);
         if(path == null){
             throw new NullPointerException("path is null, failure to delete");
         }
