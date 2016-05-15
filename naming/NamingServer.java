@@ -233,6 +233,8 @@ public class NamingServer implements Service, Registration
         scheduler.addStorageServer(client_stub, command_stub);
         // System.out.println("\n---------- TestStorageServer registered.");
         List<Path> list = new LinkedList<Path>();
+        // Register the fourth storage server with the root directory among its
+        // list of files. The naming server should silently ignore this attempt.
         for(Path path : files){
             // System.out.println("\n------------- register " + path.toString());
             if(path.isRoot()) {
