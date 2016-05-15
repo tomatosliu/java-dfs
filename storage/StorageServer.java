@@ -196,7 +196,7 @@ public class StorageServer implements Storage, Command
         }
 
         if(file.isRoot()){
-            System.out.println("file is root, failure to create.");
+            //System.out.println("file is root, failure to create.");
             return false;
         }
       //  System.out.println("=============== creating file1");
@@ -205,7 +205,7 @@ public class StorageServer implements Storage, Command
         if(f.exists()) return false;
 
         //System.out.println("=============== creating file2");
-
+        
         Path parent = file.parent();
 
        // System.out.println("=============== creating file3");

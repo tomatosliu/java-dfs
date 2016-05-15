@@ -93,11 +93,11 @@ public class NamingServer implements Service, Registration
      */
     public void stop()
     {
-        System.out.println("Naming Server stop");
+        // System.out.println("Naming Server stop");
         this.serviceSkeleton.stop();
-        System.out.println("serviceSkeleton stopped");
+        // System.out.println("serviceSkeleton stopped");
         this.registSkeleton.stop();
-        System.out.println("registSkeleton stopped");
+        // System.out.println("registSkeleton stopped");
         stopped(null);
     }
 
@@ -251,9 +251,3 @@ public class NamingServer implements Service, Registration
     }
 
 }
-
-
-
-
-
-

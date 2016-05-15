@@ -96,7 +96,7 @@ abstract class NamingTest extends Test
     @Override
     protected void clean()
     {
-        System.out.println("clean start");
+        // System.out.println("clean start");
         if(server != null)
         {
             server.stop();
