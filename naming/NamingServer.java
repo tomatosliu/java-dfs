@@ -219,9 +219,41 @@ public class NamingServer implements Service, Registration
     // The method register is documented in Registration.java.
     @Override
     public Path[] register(Storage client_stub, Command command_stub,
-                           Path[] files)
+                           Path[] files) throws RMIException
     {
-        throw new UnsupportedOperationException("not implemented");
+        // If any of the arguments is null
+        if (client_stub == null || command_stub == null || files == null){
+            throw new NullPointerException();
+        }
+        // If the storage server is already registered.
+        scheduler.addStorageServer(client_stub, command_stub);
+
+        List<Path> list = new LinkedList<Path>();
+        for(Path path : files){
+            boolean success = false;
+            try {
+                success = dirTree.insertPathStubs(path, client_stub, command_stub);
+            } catch (FileNotFoundException e){
+
+            }
+            if(!success){
+                list.add(path);
+                try {
+                    command_stub.delete(path);
+                } catch (RMIException e){
+                    throw e;
+                }
+            }
+        }
+        Path[] result = new Path[list.size()];
+        list.toArray(result);
+        return result;
     }
 
 }
+
+
+
+
+
+

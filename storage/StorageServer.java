@@ -153,7 +153,7 @@ public class StorageServer implements Storage, Command
         File f = file.toFile(this.root);
         if(!f.exists() || f.isDirectory())
             throw new FileNotFoundException();
-        if((offset + length > f.length()) || (length < 0) || (offset < 0))
+        if((offset + length > f.length()) || (length < 0) || (offset<0))
             throw new IndexOutOfBoundsException();
         RandomAccessFile raf = new RandomAccessFile(f, "r");
         byte[] bytesRead = new byte[length];
@@ -200,15 +200,22 @@ public class StorageServer implements Storage, Command
             System.out.println("file is root, failure to create.");
             return false;
         }
+      //  System.out.println("=============== creating file1");
+
+        File f = file.toFile(this.root);
+        if(f.exists()) return false;
+
+        //System.out.println("=============== creating file2");
 
         Path parent = file.parent();
+
+       // System.out.println("=============== creating file3");
+
         File pFile = parent.toFile(this.root);
 
         if(!pFile.exists()){
             pFile.mkdirs();
         }
-
-        File f = file.toFile(this.root);
 
         try{
             return f.createNewFile();
@@ -241,6 +248,7 @@ public class StorageServer implements Storage, Command
             throw new NullPointerException("path is null, failure to delete");
         }
 
+
         if(path.isRoot()){
             return false;
         }
@@ -252,22 +260,23 @@ public class StorageServer implements Storage, Command
 
     private boolean deleteHelper(File file){
         boolean deleteDir = true;
-        if(file.isFile()){
-            return file.delete();
-        }else if(file.isDirectory()){
+
+        if(file.isDirectory()){
             File[] sub = file.listFiles();
 
             for(File fsub:sub){
-                if(!deleteHelper(fsub)){
-                   deleteDir = false;
-                   break;
-                }
+                deleteDir = this.deleteHelper(fsub) && deleteDir;
+            }
+            
+            if(deleteDir){
+                file.delete();
             }
 
-            return deleteDir;
         }else{
-            return false;
+            deleteDir = file.delete();
         }
+
+        return deleteDir;
 
 
     }

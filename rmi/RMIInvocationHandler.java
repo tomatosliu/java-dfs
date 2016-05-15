@@ -64,7 +64,9 @@ public class RMIInvocationHandler implements InvocationHandler, Serializable {
         }
 
         try {
+            System.out.println("\n-------------Writing " + method.getName());
             System.out.println("\n--------------- connected " + this.skeletonAddress.toString());
+            
             socket = new Socket(this.skeletonAddress.getAddress(),
                                        this.skeletonAddress.getPort());
             objOutput = new ObjectOutputStream(socket.getOutputStream());
@@ -72,8 +74,6 @@ public class RMIInvocationHandler implements InvocationHandler, Serializable {
             objInput = new ObjectInputStream(socket.getInputStream());
 
             //System.out.println("--------------- Connected!");
-
-            System.out.println("\n\n-------------Writing " + method.getName());
             objOutput.writeObject(method.getName());
             //System.out.println("\n\n---Writing " + method.getParameterTypes());
             objOutput.writeObject(method.getParameterTypes());
