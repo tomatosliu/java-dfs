@@ -119,7 +119,6 @@ public class ReplicationTest extends NamingTest
         {
             throw new TestFailed("unable to unlock " + replicate_file, t);
         }
-        System.out.println("\n\n............... Write lock: " + replicate_file);
 
         // Wait for the file to be invalidated.
         task("waiting for " + replicate_file + " to be invalidated");

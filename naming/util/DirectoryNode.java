@@ -43,8 +43,8 @@ public class DirectoryNode {
         return this.sons;
     }
 
-    public String getPath() {
-        return path.toString();
+    public Path getPath() {
+        return this.path;
     }
 
     public ArrayList<PathComponents> getPathComps() {
@@ -53,6 +53,10 @@ public class DirectoryNode {
 
     public DirectoryNode getNextNode(Path path) {
         DirectoryNode res = null;
+        if(path == null || sons == null || sons.size() == 0) {
+            return null;
+        }
+
         for(Path p: sons.keySet()) {
             if(path.isSubpath(p)) {
                 return sons.get(p);
@@ -90,7 +94,6 @@ public class DirectoryNode {
         if(exclusive) {
             // write lock
             this.readwriteSemaphore.acquire(READMAX);
-            System.out.println("\n============== write lock: " + path);
 
             //TODO: delete servers but one
             if(!this.isDirectory()) {
@@ -107,7 +110,6 @@ public class DirectoryNode {
         else {
             // read lock
             this.readwriteSemaphore.acquire();
-            System.out.println("\n============== read lock: " + path);
             if(!isDirectory) {
                 this.readNum ++;
                 if(this.readNum == 20) {

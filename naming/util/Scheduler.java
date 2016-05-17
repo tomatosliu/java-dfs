@@ -30,9 +30,7 @@ public class Scheduler {
     }
 
     public static synchronized PathComponents pickStorageServer(ArrayList<PathComponents> fileservers) {
-        System.out.println(">>>>>>>>>>>> pickStorageServer " + fileservers.size());
         PathComponents serverStubs = fileservers.get(rand.nextInt(fileservers.size()));
-        System.out.println(">>>>>>>>>>>> pickStorageServer suc");
         return serverStubs;
     }
 

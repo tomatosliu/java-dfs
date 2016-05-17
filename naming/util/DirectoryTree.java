@@ -22,23 +22,19 @@ public class DirectoryTree {
                 Path curPath = curNode.path;
 
                 if(curPath.equals(p)) {
-                    System.out.println("\n+++++++++++ Tree lock: " + curPath + " " + exclusive);
                     curNode.lock(exclusive, scheduler);
                     break;
                 }
                 else {
-                    System.out.println("\n+++++++++++ Tree lock: " + curPath + " " + false);
                     curNode.lock(false, scheduler);
                     curNode = curNode.getNextNode(p);
                     if(curNode == null) {
-                        System.out.println("\n..................... Not Found");
                         throw new FileNotFoundException();
                     }
                 }
             }
             catch(InterruptedException e) {
                 // if the thread is interrupted
-                System.out.println("\n..................... Thread Interrupted");
             }
         }
     }
@@ -70,7 +66,6 @@ public class DirectoryTree {
         DirectoryNode curNode = this.root;
         while(true) {
             Path curPath = curNode.path;
-
             if(curPath.equals(p)) {
                 return curNode;
             }
@@ -130,6 +125,10 @@ public class DirectoryTree {
      */
 
     private boolean createDir(Path directory) {
+        if(getNode(directory) != null) {
+            return true;
+        }
+
         Stack<Path> pstack = new Stack<Path>();
         Path curPath = directory;
 
@@ -168,15 +167,14 @@ public class DirectoryTree {
         createDir(file.parent());
         if(getNode(file.parent()).sons.containsKey(file)){
             return false;
-        }else {
+        }
+        else {
             try {
                 insertNode(file, false);
             }catch(FileNotFoundException e){
                 return false;
             }
-
             DirectoryNode node = getNode(file);
-
             node.addDirComp(new PathComponents(storage, command));
             return true;
         }
@@ -189,18 +187,65 @@ public class DirectoryTree {
         @return <code>true</code>, if successiful;
                 <code>false</code>, if the Path is root, return false.
       */
-    public boolean deleteNode(Path p) throws FileNotFoundException {
+    public boolean deleteNode(Path p) throws FileNotFoundException, RMIException {
         if(p.isRoot()) {
             return false;
         }
 
+        DirectoryNode dNode = getNode(p);
+        if(dNode == null) {
+            throw new FileNotFoundException();
+        }
+
         Path pnt = p.parent();
         DirectoryNode dirNode = getNode(pnt);
+
+        // System.out.println("\n---------- deleteNode: " + p + " " + dirNode);
         if(dirNode == null) {
             throw new FileNotFoundException();
         }
 
+
+        // Deletion
+        ArrayList<PathComponents> res = getComps(p);
+        for(PathComponents pc: res) {
+            pc.getCommandStub().delete(p);
+        }
         dirNode.sons.remove(p);
         return true;
+    }
+
+    public ArrayList<PathComponents> getComps(Path path) {
+        DirectoryNode node = getNode(path);
+
+        if(node.isDirectory()) {
+            ArrayList<PathComponents> res = new ArrayList<PathComponents>();
+            for(Path sonpath: node.getSons().keySet()) {
+                res = mergePathComps(res, getComps(sonpath));
+            }
+            return res;
+        }
+        else {
+            return node.getPathComps();
+        }
+
+    }
+
+    private ArrayList<PathComponents> mergePathComps(ArrayList<PathComponents> list1,
+                                    ArrayList<PathComponents> list2) {
+        ArrayList<PathComponents> res = new ArrayList<PathComponents>(list1);
+        for(PathComponents p2: list2) {
+            boolean exist = false;
+            for(PathComponents p1: list1) {
+                if(p1.getStorageStub().equals(p2.getStorageStub())) {
+                    exist = true;
+                    break;
+                }
+            }
+            if(!exist) {
+                res.add(p2);
+            }
+        }
+        return res;
     }
 }

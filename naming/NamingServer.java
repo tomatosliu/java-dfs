@@ -118,7 +118,6 @@ public class NamingServer implements Service, Registration
     @Override
     public void lock(Path path, boolean exclusive) throws FileNotFoundException
     {
-        System.out.println("\n---------- Lock: " + path + " " + exclusive);
         if(path == null) {
             throw new NullPointerException();
         }
@@ -126,10 +125,8 @@ public class NamingServer implements Service, Registration
             this.dirTree.lock(path, exclusive, this.scheduler);
         }
         catch(Exception e) {
-            System.out.println("\n.................." + e.getCause());
             throw new FileNotFoundException();
         }
-        System.out.println("\n---------- Lock suc: " + path + " " + exclusive);
     }
 
     @Override
@@ -168,7 +165,7 @@ public class NamingServer implements Service, Registration
 
         List<String> res = new ArrayList<String>();
         for(DirectoryNode n: node.getSons().values()) {
-            String[] pstr = n.getPath().split("/");
+            String[] pstr = n.getPath().toString().split("/");
             res.add(pstr[pstr.length-1]);
         }
 
@@ -222,7 +219,7 @@ public class NamingServer implements Service, Registration
     }
 
     @Override
-    public boolean delete(Path path) throws FileNotFoundException
+    public boolean delete(Path path) throws FileNotFoundException, RMIException
     {
         // 1. delete the node in the directory tree
         //    If the file not found, throw FileNotFoundException.
