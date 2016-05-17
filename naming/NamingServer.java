@@ -118,13 +118,33 @@ public class NamingServer implements Service, Registration
     @Override
     public void lock(Path path, boolean exclusive) throws FileNotFoundException
     {
-        throw new UnsupportedOperationException("not implemented");
+        System.out.println("\n---------- Lock: " + path + " " + exclusive);
+        if(path == null) {
+            throw new NullPointerException();
+        }
+        try {
+            this.dirTree.lock(path, exclusive, this.scheduler);
+        }
+        catch(Exception e) {
+            System.out.println("\n.................." + e.getCause());
+            throw new FileNotFoundException();
+        }
+        System.out.println("\n---------- Lock suc: " + path + " " + exclusive);
     }
 
     @Override
     public void unlock(Path path, boolean exclusive)
     {
-        throw new UnsupportedOperationException("not implemented");
+        if(path == null) {
+            throw new NullPointerException();
+        }
+
+        try{
+            this.dirTree.unlock(path, exclusive);
+        }
+        catch(Exception e) {
+            throw new IllegalArgumentException();
+        }
     }
 
     @Override

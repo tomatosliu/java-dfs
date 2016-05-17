@@ -29,9 +29,34 @@ public class Scheduler {
         return serverStubs;
     }
 
-    public static PathComponents pickStorageServer(ArrayList<PathComponents> servers) {
-        PathComponents serverStubs = servers.get(rand.nextInt(servers.size()));
+    public static synchronized PathComponents pickStorageServer(ArrayList<PathComponents> fileservers) {
+        System.out.println(">>>>>>>>>>>> pickStorageServer " + fileservers.size());
+        PathComponents serverStubs = fileservers.get(rand.nextInt(fileservers.size()));
+        System.out.println(">>>>>>>>>>>> pickStorageServer suc");
         return serverStubs;
+    }
+
+    public PathComponents pickCopyStorageServer(ArrayList<PathComponents> fileservers) {
+        ArrayList<PathComponents> available = new ArrayList<PathComponents>();
+        for(PathComponents p: this.servers) {
+            boolean exist = false;
+            for(PathComponents fs: fileservers) {
+                if(fs.getStorageStub().equals(p.getStorageStub())
+                        || fs.getCommandStub().equals(p.getCommandStub())) {
+                    exist = true;
+                    break;
+                }
+            }
+            if(!exist) {
+                available.add(p);
+            }
+        }
+        if(available.size() > 0) {
+            return pickStorageServer(available);
+        }
+        else {
+            return null;
+        }
     }
 
     /** API for registration. Add a Storage server.

@@ -5,11 +5,61 @@ import java.io.*;
 
 import common.*;
 import storage.*;
+import naming.util.*;
+import rmi.*;
 
 public class DirectoryTree {
     DirectoryNode root;
     public DirectoryTree() {
         this.root = new DirectoryNode(new Path(), true);
+    }
+
+    public void lock(Path p, boolean exclusive, Scheduler scheduler)
+                throws FileNotFoundException, RMIException {
+        DirectoryNode curNode = this.root;
+        while(true) {
+            try {
+                Path curPath = curNode.path;
+
+                if(curPath.equals(p)) {
+                    System.out.println("\n+++++++++++ Tree lock: " + curPath + " " + exclusive);
+                    curNode.lock(exclusive, scheduler);
+                    break;
+                }
+                else {
+                    System.out.println("\n+++++++++++ Tree lock: " + curPath + " " + false);
+                    curNode.lock(false, scheduler);
+                    curNode = curNode.getNextNode(p);
+                    if(curNode == null) {
+                        System.out.println("\n..................... Not Found");
+                        throw new FileNotFoundException();
+                    }
+                }
+            }
+            catch(InterruptedException e) {
+                // if the thread is interrupted
+                System.out.println("\n..................... Thread Interrupted");
+            }
+        }
+    }
+
+    public void unlock(Path p, boolean exclusive) throws FileNotFoundException {
+        DirectoryNode curNode = this.root;
+        while(true) {
+            Path curPath = curNode.path;
+
+            if(curPath.equals(p)) {
+                curNode.unlock(exclusive);
+                break;
+            }
+            else {
+                curNode.unlock(false);
+                curNode = curNode.getNextNode(p);
+                if(curNode == null) {
+                    throw new FileNotFoundException();
+                }
+            }
+        }
     }
 
     /** Get a directory node in the tree by Path p.

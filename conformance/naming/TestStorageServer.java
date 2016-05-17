@@ -110,6 +110,7 @@ class TestStorageServer implements Storage, Command
     {
         // Start storage server skeletons.
         startSkeletons();
+
         // Register the storage server with the naming server.
         Path[]      delete_files =
             naming_server.register(client_stub, command_stub, offer_files);
