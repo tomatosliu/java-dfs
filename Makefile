@@ -11,7 +11,7 @@
 # - JAVAFILES is all of the Java files in the project, including test cases and
 #   build tools.
 
-DFSPACKAGES = common rmi storage naming client apps
+DFSPACKAGES = common rmi storage naming client apps naming/util
 JARFILE = dfs.jar
 ARCHIVE = project2.zip
 JAVAFILES = */*.java */*/*.java

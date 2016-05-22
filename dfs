@@ -59,7 +59,7 @@ else
             # If the first call to parse succeeded, the second call will also
             # succeed, and there is no need to check the exit code.
             REMOTEPATH=`$JAR_COMMAND parse $2 path`
-
+            
             export DFSHOST=$HOSTNAME
             export DFSCWD=$REMOTEPATH
         fi
